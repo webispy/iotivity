@@ -1,0 +1,36 @@
+Source: iotivity
+Section: libs
+Priority: optional
+Maintainer: Inho Oh <webispy@gmail.com>
+Build-Depends: debhelper (>=9),
+	libcurl4-openssl-dev,
+	libglib2.0-dev,
+	uuid-dev,
+	scons:all,
+	libsqlite3-dev,
+	unzip,
+	autoconf,
+	automake,
+	libtool,
+	chrpath
+Standards-Version: 3.9.6
+Homepage: https://www.iotivity.org/
+Vcs-Git: https://github.com/webispy/iotivity.git
+Vcs-Browser: https://github.com/webispy/iotivity
+
+Package: iotivity
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: IoTivity is an open source software framework enabling seamless device-to-device connectivity to address the emerging needs of the Internet of Things.
+
+Package: iotivity-dev
+Architecture: any
+Depends: iotivity
+Description: IoTivity is an open source software framework enabling seamless device-to-device connectivity to address the emerging needs of the Internet of Things. - Development files
+
+Package: iotivity-dbg
+Section: debug
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: IoTivity is an open source software framework enabling seamless device-to-device connectivity to address the emerging needs of the Internet of Things. - Debug symbols
+

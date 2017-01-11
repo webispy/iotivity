@@ -1,0 +1,51 @@
+#!/usr/bin/make -f
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+DEB_HOST_ARCH_CPU ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
+DEB_HOST_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+	export NUMJOBS = -j$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+endif
+ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+ifneq (,$(SYSROOT))
+	export PKG_CONFIG_PATH = $(SYSROOT)/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig
+	export PKG_CONFIG_SYSROOT_DIR = $(SYSROOT)
+	export TC_PATH = "TC_PATH=$(SYSROOT)/usr"
+else
+	export PKG_CONFIG = $(DEB_HOST_MULTIARCH)-pkg-config
+	export PKG_CONFIG_PATH = /usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig
+	export PKG_CONFIG_SYSROOT_DIR = /usr
+endif
+endif
+ifneq (,$(filter arm,$(DEB_HOST_ARCH_CPU)))
+	export BUILD_ARCH = armeabi-v7a
+endif
+ifneq (,$(filter arm64,$(DEB_HOST_ARCH_CPU)))
+	export BUILD_ARCH = arm64
+endif
+ifneq (,$(filter amd64,$(DEB_HOST_ARCH_CPU)))
+	export BUILD_ARCH = x86_64
+endif
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	scons TARGET_OS=linux TARGET_ARCH=$(BUILD_ARCH) RELEASE=True SECURED=1 TARGET_TRANSPORT=IP LOG_LEVEL=ERROR VERBOSE=yes \
+		$(TC_PATH) TC_PREFIX=$(DEB_HOST_GNU_TYPE)- $(NUMJOBS) --prefix=/usr LIB_INSTALL_DIR=/usr/lib/$(DEB_HOST_MULTIARCH)/
+
+override_dh_install:
+	scons TARGET_OS=linux TARGET_ARCH=$(BUILD_ARCH) RELEASE=True SECURED=1 TARGET_TRANSPORT=IP LOG_LEVEL=ERROR VERBOSE=yes \
+		$(TC_PATH) TC_PREFIX=$(DEB_HOST_GNU_TYPE)- $(NUMJOBS) --prefix=/usr LIB_INSTALL_DIR=/usr/lib/$(DEB_HOST_MULTIARCH)/ \
+		--install-sandbox=$(PWD)/debian/tmp install
+	find $(PWD)/debian/tmp -type f -executable -exec chrpath -d "{}" \;
+	find $(PWD)/debian/tmp -type f -iname "lib*.so" -exec chrpath -d "{}" \;
+	dh_install
+
+override_dh_strip:
+	dh_strip --dbg-package=iotivity-dbg
+
+override_dh_shlibdeps:
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(SYSROOT)/usr/lib/$(DEB_HOST_MULTIARCH):$(SYSROOT)/lib:$(SYSROOT)/lib/$(DEB_HOST_MULTIARCH) dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+
