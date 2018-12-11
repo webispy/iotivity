@@ -69,21 +69,21 @@ if target_os not in ['arduino','darwin','ios', 'android', 'msys_nt', 'windows']:
         SConscript(build_dir + 'examples/OCFSecure/SConscript')
 
 java_build = None
-if (env.get('BUILD_JAVA') and env.get('JAVA_HOME')) or target_os == 'android':
-    java_build = SConscript(build_dir + 'java/SConscript')
+#if (env.get('BUILD_JAVA') and env.get('JAVA_HOME')) or target_os == 'android':
+#    java_build = SConscript(build_dir + 'java/SConscript')
 
 # Build 'service' sub-project
-service_build = SConscript(build_dir + 'service/SConscript')
+#service_build = SConscript(build_dir + 'service/SConscript')
 
-if java_build:
-    Depends(service_build, java_build)
+#if java_build:
+#    Depends(service_build, java_build)
 
 # Build other sub-projects
-SConscript(dirs=[
-    build_dir + 'cloud',
-    build_dir + 'plugins',
-    build_dir + 'bridging',
-])
+#SConscript(dirs=[
+#    build_dir + 'cloud',
+#    build_dir + 'plugins',
+#    build_dir + 'bridging',
+#])
 
 # Append target information to the help information (if needed)
 # To see help info, execute:
