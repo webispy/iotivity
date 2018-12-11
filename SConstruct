@@ -63,7 +63,7 @@ build_dir = env.get('BUILD_DIR')
 # Build 'resource' sub-project
 SConscript(build_dir + 'resource/SConscript')
 
-if target_os not in ['arduino','darwin','ios', 'android', 'msys_nt', 'windows']:
+if target_os not in ['arduino','darwin','ios', 'android', 'msys_nt', 'windows', 'linux']:
     SConscript(build_dir + 'examples/OICMiddle/SConscript')
     if env.get('SECURED') == '1':
         SConscript(build_dir + 'examples/OCFSecure/SConscript')

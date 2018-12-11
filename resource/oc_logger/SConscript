@@ -52,8 +52,7 @@ if target_os not in ['darwin', 'ios', 'windows', 'msys_nt']:
 
 oc_logger_libs = liboc_logger_env.StaticLibrary('oc_logger_internal', [
     'c/oc_logger.c',
-    'c/oc_console_logger.c',
-    'cpp/oc_ostream_logger.cpp'
+    'c/oc_console_logger.c'
 ])
 
 if target_os in ['ios']:
@@ -69,24 +68,19 @@ elif target_os not in ['windows', 'msys_nt']:
     oc_logger_libs += Flatten(
         liboc_logger_env.SharedLibrary('oc_logger', [
             'c/oc_logger.c',
-            'c/oc_console_logger.c',
-            'cpp/oc_ostream_logger.cpp'
+            'c/oc_console_logger.c'
         ]))
 
 liboc_logger_env.InstallTarget(oc_logger_libs, 'oc_logger')
 liboc_logger_env.UserInstallTargetLib(oc_logger_libs, 'oc_logger')
 liboc_logger_env.UserInstallTargetHeader(
-    'include/oc_logger.hpp', 'resource', 'oc_logger.hpp')
-liboc_logger_env.UserInstallTargetHeader(
     'include/oc_logger.h', 'resource', 'oc_logger.h')
 liboc_logger_env.UserInstallTargetHeader(
     'include/oc_logger_types.h', 'resource', 'oc_logger_types.h')
-liboc_logger_env.UserInstallTargetHeader(
-    'include/oc_log_stream.hpp', 'resource', 'oc_log_stream.hpp')
 liboc_logger_env.UserInstallTargetHeader(
     'include/targets/oc_console_logger.h', 'resource/targets', 'oc_console_logger.h')
 liboc_logger_env.UserInstallTargetHeader(
     'include/targets/oc_ostream_logger.h', 'resource/targets', 'oc_ostream_logger.h')
 
-if target_os not in ['ios', 'android']:
+if target_os not in ['linux', 'ios', 'android']:
     SConscript('examples/SConscript')

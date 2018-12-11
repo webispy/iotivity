@@ -54,7 +54,7 @@ if 'SERVER' in rd_mode:
     rd_env.AppendUnique(CPPDEFINES=['RD_SERVER'])
 
 rd_env.PrependUnique(
-    LIBS=['octbstack', 'oc', 'oc_logger', 'connectivity_abstraction'])
+    LIBS=['octbstack', 'oc_logger', 'connectivity_abstraction'])
 
 if target_os not in ['windows']:
     rd_env.AppendUnique(
@@ -95,7 +95,7 @@ if 'CLIENT' in rd_mode:
 
 rd_src_all = rd_src_c
 
-if target_os not in ['arduino', 'darwin', 'ios']:
+if target_os not in ['linux', 'arduino', 'darwin', 'ios']:
     rd_src_cpp += [RD_SRC_DIR + 'RDClient.cpp']
     if 'CLIENT' in rd_mode:
         rd_src_all += rd_src_cpp
@@ -129,11 +129,11 @@ if 'SERVER' in rd_mode:
 ######################################################################
 # Samples for the resource directory
 ######################################################################
-if target_os in ['linux']:
-    SConscript('samples/SConscript')
+#if target_os in ['linux']:
+#    SConscript('samples/SConscript')
 
 ######################################################################
 # Build UnitTests of the Resource Directory
 ################################################ ######################
-if target_os in ['linux']:
-    SConscript('unittests/SConscript')
+#if target_os in ['linux']:
+#    SConscript('unittests/SConscript')
