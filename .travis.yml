@@ -1,0 +1,48 @@
+language: generic
+sudo: required
+services: docker
+addons:
+  apt:
+    update: true
+    packages:
+    - qemu-user-static
+    - binfmt-support
+env:
+  matrix:
+  - TARGET=ux64 CHROOT=xenial-amd64 HOST=amd64
+  - TARGET=u710cross CHROOT=xenial-amd64-arm64 HOST=arm64
+  - TARGET=u530cross CHROOT=xenial-amd64-armhf HOST=armhf
+
+before_install:
+- git clone https://github.com/01org/tinycbor.git extlibs/tinycbor/tinycbor -b v0.4.1
+- git clone https://github.com/ARMmbed/mbedtls.git extlibs/mbedtls/mbedtls -b mbedtls-2.4.2
+
+install:
+- update-binfmts --display
+- docker system info
+- sudo rm /dev/shm
+- sudo mkdir /dev/shm
+- sudo mount --bind /run/shm /dev/shm
+- docker pull webispy/artik_devenv_$TARGET
+
+script:
+- docker run -it --name builder --privileged -v /var/lib/schroot -v $PWD:/home/work/src
+  -w /home/work/src webispy/artik_devenv_$TARGET bash -c "mkdir /home/work/result
+  && sbuild --chroot $CHROOT --host $HOST --dpkg-source-opts=\"-I.git*\" && cp /home/work/*.deb
+  /home/work/result/"
+
+before_deploy:
+- docker cp builder:/home/work/result /tmp/
+- ls -l /tmp/result
+
+deploy:
+  provider: releases
+  api_key:
+    secure: Im4uZMJF9Skd4Qh7CDsEHw7F5QvZ8nxlvfwSTiMTPboTt9NKC94Qbak7StBTzm7FTx0lDrssAYpz99Wjwp95zYEYTl+GBMM37D9vaFWoayMo/18k33x5TjLT+bqlgaYbYIwHnj2Tm8dDh71PLMDrtkkloLUMAcLB8jiDgVC5Mzl9efTo4rsmLWnUl4GPLjxMPMBZ/T9ybVnELvAqE9C8Ka5VBwyD7oNL+nwqkgm263Lfe1RL7dz8xK+s4Tiv1z9W0LMpKTrjaJ3Hr0BRUdFErRo3cmIv7kNSHtUxmm5yOoarDtdELaknMq2k4SkAjJDGCO35jN11nDlmyGLwiRTaqROFAulXHLY+4xk8MSFvGy2UOxxtqo9WD5KomyG3RdwJ0p/Elj3wDAtFnIhGdnME684vdfD/xfPIlPg6Pc+67APA5wRP+dSBmHJicrk04DNscRZ16/Vr8CWExAmykC2bjfWyGh2AbhnaD9lFcXgSwe40qxcrkUuWKsHpVy3wD5G1qde+ewrksg3y2c8thfnlxy2A4y/QDy/hnnt4jiz8uqhXkCgMQ1gr5927WzBB3kUuVO50qDeLoGi9v+Qb/af7UeO6uKieqpfc38nYLVc+b127NwiM0H5zbwZw1GTlhQv6cpvf40uItVK1JFtzARdPnANuYRFV7/+lsZvvBL1k0jA=
+  file_glob: true
+  file: /tmp/result/*
+  skip_cleanup: true
+  on:
+    repo: webispy/iotivity
+    branch: 1.3-rel
+    tags: true
